@@ -12,7 +12,7 @@ public class EntityCombineMob extends EntityLiving {
 
 	public EntityCombineMob(World world) {
 		super(world);
-		this.setSize(4.9f, 4.9f);
+		this.setSize(3f, 5f);
 		this.getNavigator().setAvoidsWater(true);
 		this.tasks.removeTask(new EntityAILookIdle(this));
 	}
@@ -22,6 +22,71 @@ public class EntityCombineMob extends EntityLiving {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(53.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(100);
+	}
+
+	@Override
+	public void onLivingUpdate() {
+		if (this.newPosRotationIncrements > 0) {
+			double d0 = this.posX + (this.newPosX - this.posX) / this.newPosRotationIncrements;
+			double d1 = this.posY + (this.newPosY - this.posY) / this.newPosRotationIncrements;
+			double d2 = this.posZ + (this.newPosZ - this.posZ) / this.newPosRotationIncrements;
+			double d3 = 0;// MathHelper.wrapAngleTo180_double(this.newRotationYaw
+							// - this.rotationYaw);
+			this.rotationYaw = (float) (this.rotationYaw + d3 / this.newPosRotationIncrements);
+			this.rotationPitch = (float) (this.rotationPitch
+					+ (this.newRotationPitch - this.rotationPitch) / this.newPosRotationIncrements);
+			--this.newPosRotationIncrements;
+			this.setPosition(d0, d1, d2);
+			this.setRotation(this.rotationYaw, this.rotationPitch);
+		} else if (!this.isClientWorld()) {
+			this.motionX *= 0.98D;
+			this.motionY *= 0.98D;
+			this.motionZ *= 0.98D;
+		}
+
+		if (Math.abs(this.motionX) < 0.005D) {
+			this.motionX = 0.0D;
+		}
+
+		if (Math.abs(this.motionY) < 0.005D) {
+			this.motionY = 0.0D;
+		}
+
+		if (Math.abs(this.motionZ) < 0.005D) {
+			this.motionZ = 0.0D;
+		}
+
+		this.worldObj.theProfiler.startSection("ai");
+
+		if (this.isMovementBlocked()) {
+			this.isJumping = false;
+			this.moveStrafing = 0.0F;
+			this.moveForward = 0.0F;
+			this.randomYawVelocity = 0.0F;
+		} else if (this.isClientWorld()) {
+			if (this.isAIEnabled()) {
+				this.worldObj.theProfiler.startSection("newAi");
+				this.updateAITasks();
+				this.worldObj.theProfiler.endSection();
+			} else {
+				this.worldObj.theProfiler.startSection("oldAi");
+				this.updateEntityActionState();
+				this.worldObj.theProfiler.endSection();
+				// this.rotationYawHead = this.rotationYaw;
+			}
+		}
+
+		this.worldObj.theProfiler.endSection();
+
+		this.worldObj.theProfiler.startSection("travel");
+		this.moveStrafing *= 0.98F;
+		this.moveForward *= 0.98F;
+		this.randomYawVelocity *= 0.9F;
+		this.moveEntityWithHeading(this.moveStrafing, this.moveForward);
+		this.worldObj.theProfiler.endSection();
+		this.worldObj.theProfiler.startSection("push");
+
+		this.worldObj.theProfiler.endSection();
 	}
 
 	@Override
@@ -36,12 +101,6 @@ public class EntityCombineMob extends EntityLiving {
 
 			return true;
 		}
-	}
-
-	@Override
-	public void onLivingUpdate() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onLivingUpdate();
 	}
 
 	@Override

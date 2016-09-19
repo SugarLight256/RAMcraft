@@ -30,7 +30,7 @@ public class RenderCombineMob extends RenderLiving {
 
 	@Override
 	protected void preRenderCallback(EntityLivingBase p_77041_1_, float p_77041_2_) {
-		GL11.glScalef(5f, 5f, 5f);
+		GL11.glScalef(3f, 3f, 3f);
 	}
 
 }
