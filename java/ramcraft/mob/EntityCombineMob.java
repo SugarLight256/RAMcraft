@@ -12,9 +12,11 @@ public class EntityCombineMob extends EntityLiving {
 
 	public EntityCombineMob(World world) {
 		super(world);
-		this.setSize(3f, 5f);
+		this.setSize(2f, 2f);
 		this.getNavigator().setAvoidsWater(true);
 		this.tasks.removeTask(new EntityAILookIdle(this));
+		this.boundingBox.maxX = 5;
+		this.boundingBox.maxZ = 10;
 	}
 
 	@Override
