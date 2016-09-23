@@ -23,7 +23,7 @@ public class EntityCombineMob extends EntityLiving {
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(10.0D);
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(1.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.22499999403953552D);
 	}
 
 	@Override
@@ -139,8 +139,7 @@ public class EntityCombineMob extends EntityLiving {
 
 			if (!this.worldObj.isRemote) {
 				this.setAIMoveSpeed(
-						(float) this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue()
-								* 10);
+						(float) this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
 				super.moveEntityWithHeading(p_70612_1_, moveForward);
 			}
 
@@ -164,6 +163,6 @@ public class EntityCombineMob extends EntityLiving {
 
 	@Override
 	public boolean isAIEnabled() {
-		return false;
+		return true;
 	}
 }
