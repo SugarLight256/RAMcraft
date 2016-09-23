@@ -10,20 +10,35 @@ import net.minecraft.world.World;
 
 public class EntityCombineMob extends EntityLiving {
 
+	private double rideX = 0.5, rideY = 0, rideZ = -0.8;
+
 	public EntityCombineMob(World world) {
 		super(world);
 		this.setSize(2f, 2f);
 		this.getNavigator().setAvoidsWater(true);
 		this.tasks.removeTask(new EntityAILookIdle(this));
-		this.boundingBox.maxX = 5;
-		this.boundingBox.maxZ = 10;
 	}
 
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(53.0D);
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(100);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(10.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(1.0D);
+	}
+
+	@Override
+	public void updateRiderPosition() {
+		double theta = Math.PI * (180 + this.rotationYaw) / 180f;
+		if (this.riddenByEntity != null) {
+			updateRiderPositionWithOffset(rideX * Math.cos(theta) - rideZ * Math.sin(theta), rideY, // 回転の線形変換
+					rideX * Math.sin(theta) + rideZ * Math.cos(theta));
+		}
+	}
+
+	// change ride pos
+	private void updateRiderPositionWithOffset(double x, double y, double z) {
+		this.riddenByEntity.setPosition(this.posX + x,
+				this.posY + this.getMountedYOffset() + this.riddenByEntity.getYOffset() + y, this.posZ + z);
 	}
 
 	@Override
@@ -124,7 +139,8 @@ public class EntityCombineMob extends EntityLiving {
 
 			if (!this.worldObj.isRemote) {
 				this.setAIMoveSpeed(
-						(float) this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue());
+						(float) this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue()
+								* 10);
 				super.moveEntityWithHeading(p_70612_1_, moveForward);
 			}
 
